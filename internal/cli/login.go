@@ -1,24 +1,26 @@
 package cli
 
 import (
+	"context"
 	"errors"
-	"fmt"
+	"log"
 )
 
 func handlerLogin(s *state, cmd command) error {
-	if cmd.Args == nil || len(cmd.Args) == 0 {
-		return errors.New("expected arguments")
-	}
-
-	if len(cmd.Args) != 1 {
+	if cmd.args == nil || len(cmd.args) != 1 {
 		return errors.New("expected a single argument: a username")
 	}
-	username := cmd.Args[0]
+	username := cmd.args[0]
 
-	if err := s.Config.SetUser(username); err != nil {
+	user, err := s.DB.GetUser(context.Background(), username)
+	if err != nil {
+		return errors.New("user does not exist")
+	}
+
+	if err := s.CFG.SetUser(user.Name); err != nil {
 		return err
 	}
-	fmt.Println("username is set to:", username)
+	log.Println("username set to", user.Name)
 
 	return nil
 }
