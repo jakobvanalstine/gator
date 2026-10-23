@@ -12,7 +12,7 @@ import (
 
 func handlerRegister(s *state, cmd command) error {
 	if cmd.args == nil || len(cmd.args) != 1 {
-		return errors.New("expected a single argument: a username")
+		return errors.New("expected one argument: a username")
 	}
 	username := cmd.args[0]
 

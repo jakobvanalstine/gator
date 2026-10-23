@@ -15,6 +15,7 @@ func GetCommands() *commands {
 	c := &commands{
 		byName: map[string]func(*state, command) error{},
 	}
+	c.register("addfeed", handlerAddFeed)
 	c.register("agg", handlerAgg)
 	c.register("login", handlerLogin)
 	c.register("register", handlerRegister)
