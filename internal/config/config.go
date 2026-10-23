@@ -50,7 +50,7 @@ func (C *Config) write(b []byte) (n int, err error) {
 		return n, err
 	}
 
-	f, err := os.OpenFile(configPath, os.O_RDWR|os.O_CREATE, 0644)
+	f, err := os.OpenFile(configPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return n, err
 	}
