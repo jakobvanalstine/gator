@@ -25,7 +25,7 @@ func handlerRegister(s *state, cmd command) error {
 	createdAt := time.Now()
 	updatedAt := createdAt
 	params := database.CreateUserParams{
-		ID:        int32(uuid.New().ID()),
+		ID:        uuid.New(),
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,
 		Name:      username,
