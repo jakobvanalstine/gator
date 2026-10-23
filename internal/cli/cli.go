@@ -17,6 +17,9 @@ func GetCommands() *commands {
 	}
 	c.register("addfeed", handlerAddFeed)
 	c.register("agg", handlerAgg)
+	c.register("feeds", handlerFeeds)
+	c.register("follow", handlerFollow)
+	c.register("following", handlerFollowing)
 	c.register("login", handlerLogin)
 	c.register("register", handlerRegister)
 	c.register("reset", handlerReset)

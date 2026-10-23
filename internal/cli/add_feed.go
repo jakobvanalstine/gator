@@ -37,8 +37,17 @@ func handlerAddFeed(s *state, cmd command) error {
 	if err != nil {
 		return err
 	}
-
 	fmt.Printf("Created feed %v\n", feed.Name)
 	fmt.Printf("%+v\n", feed)
-	return err
+
+	newCMD := command{
+		name: "follow",
+		args: []string{url},
+	}
+	if err := handlerFollow(s, newCMD); err != nil {
+		// TODO(jakob): If this fails, cleanup should remove the new feed.
+		return err
+	}
+
+	return nil
 }
