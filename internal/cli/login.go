@@ -3,12 +3,12 @@ package cli
 import (
 	"context"
 	"errors"
-	"log"
+	"fmt"
 )
 
 func handlerLogin(s *state, cmd command) error {
 	if cmd.args == nil || len(cmd.args) != 1 {
-		return errors.New("expected a single argument: a username")
+		return errors.New("expected a username")
 	}
 	username := cmd.args[0]
 
@@ -20,7 +20,7 @@ func handlerLogin(s *state, cmd command) error {
 	if err := s.CFG.SetUser(user.Name); err != nil {
 		return err
 	}
-	log.Println("username set to", user.Name)
+	fmt.Println("logged in as", user.Name)
 
 	return nil
 }

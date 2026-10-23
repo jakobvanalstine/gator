@@ -3,7 +3,7 @@ package cli
 import (
 	"context"
 	"errors"
-	"log"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -40,8 +40,8 @@ func handlerRegister(s *state, cmd command) error {
 		return err
 	}
 
-	log.Printf("Created user %v\n", user.Name)
-	log.Printf("%#v\n", user)
+	fmt.Printf("Created user %v\n", user.Name)
+	fmt.Printf("%#v\n", user)
 
 	return err
 }

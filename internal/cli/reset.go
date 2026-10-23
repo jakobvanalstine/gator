@@ -2,15 +2,15 @@ package cli
 
 import (
 	"context"
-	"log"
+	"fmt"
 )
 
 func handlerReset(s *state, cmd command) error {
 	err := s.DB.Reset(context.Background())
 	if err != nil {
-		log.Println("Failed to reset database!")
+		return fmt.Errorf("reset failed: %w", err)
 	} else {
-		log.Println("Database reset!")
+		fmt.Println("Database reset!")
 	}
 	return err
 }
