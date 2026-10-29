@@ -99,4 +99,4 @@ gator browse [limit]
 
 A limit is an optional number representing the maximum number of posts to retrieve. It defaults to `2`.
 
-This command will print the title and URL of each aggregated post. To read the post, you'll have to follow the link.
+This command will print the title and URL of each aggregated post. To read the post, follow the link.
