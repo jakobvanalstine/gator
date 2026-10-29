@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -10,7 +9,7 @@ import (
 var userForID = map[uuid.UUID]string{}
 
 func handlerFeeds(s *state, cmd command) error {
-	feeds, err := s.DB.GetFeeds(context.Background())
+	feeds, err := s.DB.GetFeeds(s.CTX)
 	if err != nil {
 		return err
 	}
@@ -22,7 +21,7 @@ func handlerFeeds(s *state, cmd command) error {
 
 		username, ok := userForID[f.ID]
 		if !ok {
-			user, err := s.DB.GetUserForID(context.Background(), f.UserID)
+			user, err := s.DB.GetUserForID(s.CTX, f.UserID)
 			if err != nil {
 				return err
 			}

@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"context"
 	"errors"
 
 	"github.com/jakobvanalstine/gator/internal/database"
@@ -13,7 +12,7 @@ func handlerUnfollow(s *state, cmd command, user database.User) error {
 	}
 	url := cmd.args[0]
 
-	feed, err := s.DB.GetFeedForURL(context.Background(), url)
+	feed, err := s.DB.GetFeedForURL(s.CTX, url)
 	if err != nil {
 		return err
 	}
@@ -23,7 +22,7 @@ func handlerUnfollow(s *state, cmd command, user database.User) error {
 		FeedID: feed.ID,
 	}
 
-	if err := s.DB.DeleteFeedFollow(context.Background(), params); err != nil {
+	if err := s.DB.DeleteFeedFollow(s.CTX, params); err != nil {
 		return err
 	}
 

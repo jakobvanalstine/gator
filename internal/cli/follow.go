@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -16,7 +15,7 @@ func handlerFollow(s *state, cmd command, user database.User) error {
 	}
 	url := cmd.args[0]
 
-	feed, err := s.DB.GetFeedForURL(context.Background(), url)
+	feed, err := s.DB.GetFeedForURL(s.CTX, url)
 	if err != nil {
 		return errors.New("please add the feed first")
 	}
@@ -31,7 +30,7 @@ func handlerFollow(s *state, cmd command, user database.User) error {
 		FeedID:    feed.ID,
 	}
 
-	_, err = s.DB.CreateFeedFollow(context.Background(), params)
+	_, err = s.DB.CreateFeedFollow(s.CTX, params)
 	if err != nil {
 		return err
 	}

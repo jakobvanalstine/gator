@@ -1,12 +1,11 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 )
 
 func handlerUsers(s *state, cmd command) error {
-	users, err := s.DB.GetUsers(context.Background())
+	users, err := s.DB.GetUsers(s.CTX)
 	if err != nil {
 		return err
 	}

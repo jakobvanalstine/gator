@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"context"
 	"errors"
 	"fmt"
 )
@@ -12,7 +11,7 @@ func handlerLogin(s *state, cmd command) error {
 	}
 	username := cmd.args[0]
 
-	user, err := s.DB.GetUser(context.Background(), username)
+	user, err := s.DB.GetUser(s.CTX, username)
 	if err != nil {
 		return errors.New("user does not exist")
 	}

@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -16,7 +15,7 @@ func handlerRegister(s *state, cmd command) error {
 	}
 	username := cmd.args[0]
 
-	_, err := s.DB.GetUser(context.Background(), username)
+	_, err := s.DB.GetUser(s.CTX, username)
 	if err == nil {
 		// OBS: We check err == nil to see if a user by this name already exists.
 		return errors.New("user already exists")
@@ -35,7 +34,7 @@ func handlerRegister(s *state, cmd command) error {
 		return err
 	}
 
-	user, err := s.DB.CreateUser(context.Background(), params)
+	user, err := s.DB.CreateUser(s.CTX, params)
 	if err != nil {
 		return err
 	}

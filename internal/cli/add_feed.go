@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -28,7 +27,7 @@ func handlerAddFeed(s *state, cmd command, user database.User) error {
 		UserID:    user.ID,
 	}
 
-	feed, err := s.DB.AddFeed(context.Background(), params)
+	feed, err := s.DB.AddFeed(s.CTX, params)
 	if err != nil {
 		return err
 	}
