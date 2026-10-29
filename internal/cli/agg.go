@@ -25,11 +25,12 @@ func handlerAgg(s *state, cmd command) error {
 		return err
 	}
 	for {
-		fmt.Printf("\nSleeping...\n\n")
+		fmt.Println("Sleeping...")
 		select {
 		case <-s.CTX.Done():
 			return s.CTX.Err()
 		case <-ticker.C:
+			fmt.Println("Collecting feeds...")
 			if err := scrapeFeeds(s); err != nil {
 				return err
 			}

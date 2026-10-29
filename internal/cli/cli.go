@@ -3,12 +3,17 @@ package cli
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
+	"os"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jakobvanalstine/gator/internal/config"
 	"github.com/jakobvanalstine/gator/internal/database"
 	"github.com/jakobvanalstine/gator/internal/rss"
+	"github.com/lib/pq"
+	"github.com/lib/pq/pqerror"
 )
 
 func NewState() *state {
@@ -102,8 +107,84 @@ func scrapeFeeds(s *state) error {
 	}
 
 	for _, item := range rssFeed.Channel.Item {
-		fmt.Printf("%+v\n", item)
+		now := time.Now().UTC()
+		params := database.AddPostParams{
+			ID:        uuid.New(),
+			CreatedAt: now,
+			UpdatedAt: now,
+			Title:     item.Title,
+			Url:       item.Link,
+			FeedID:    dbFeed.ID,
+			Description: sql.NullString{
+				String: item.Description,
+				Valid:  item.Description != "",
+			},
+		}
+		time, err := tryTimeParse(item.PubDate)
+		params.PublishedAt = sql.NullTime{
+			Time:  time,
+			Valid: err == nil, // Note the operator used.
+		}
+
+		_, err = s.DB.AddPost(s.CTX, params)
+		if err != nil {
+			pqErr := new(pq.Error)
+			if errors.As(err, &pqErr) {
+				switch pqErr.Code {
+				case pqerror.UniqueViolation:
+					// Scraping feeds is bound to turn up posts we already have.
+					// Ignore them instead of crashing the scraper.
+				default:
+					fmt.Fprintln(os.Stderr, "WARNING:", err.Error())
+				}
+			} else {
+				fmt.Fprintln(os.Stderr, "WARNING:", err.Error())
+			}
+		}
 	}
 
 	return nil
+}
+
+var (
+	tryTimeParseCachedIndex = -1
+	tryTimeParseLayouts     = []string{
+		time.Layout,
+		time.ANSIC,
+		time.UnixDate,
+		time.RubyDate,
+		time.RFC822,
+		time.RFC822Z,
+		time.RFC850,
+		time.RFC1123,
+		time.RFC1123Z,
+		time.RFC3339,
+		time.RFC3339Nano,
+	}
+)
+
+func tryTimeParse(value string) (time.Time, error) {
+	if tryTimeParseCachedIndex != -1 && tryTimeParseCachedIndex < len(tryTimeParseLayouts) {
+		layout := tryTimeParseLayouts[tryTimeParseCachedIndex]
+		time, err := time.Parse(layout, value)
+		if err != nil {
+			// Do nothing.
+		} else {
+			return time, nil
+		}
+	}
+
+	for i, layout := range tryTimeParseLayouts {
+		time, err := time.Parse(layout, value)
+		if err != nil {
+			continue
+		}
+
+		// A layout worked.
+		tryTimeParseCachedIndex = i
+		return time, nil
+	}
+
+	// No layout worked.
+	return time.Time{}, errors.New("failed to parse time")
 }
