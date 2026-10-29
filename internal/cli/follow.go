@@ -10,16 +10,11 @@ import (
 	"github.com/jakobvanalstine/gator/internal/database"
 )
 
-func handlerFollow(s *state, cmd command) error {
+func handlerFollow(s *state, cmd command, user database.User) error {
 	if cmd.args == nil || len(cmd.args) != 1 {
 		return errors.New("expected one argument: a URL")
 	}
 	url := cmd.args[0]
-
-	user, err := s.DB.GetUser(context.Background(), s.CFG.CurrentUserName)
-	if err != nil {
-		return errors.New("please log in first")
-	}
 
 	feed, err := s.DB.GetFeedForURL(context.Background(), url)
 	if err != nil {
