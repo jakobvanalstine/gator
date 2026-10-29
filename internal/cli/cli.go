@@ -24,6 +24,7 @@ func GetCommands() *commands {
 	c.register("login", handlerLogin)
 	c.register("register", handlerRegister)
 	c.register("reset", handlerReset)
+	c.register("unfollow", middlewareLoggedIn(handlerUnfollow))
 	c.register("users", handlerUsers)
 	return c
 }
