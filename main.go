@@ -10,6 +10,7 @@ import (
 	"github.com/jakobvanalstine/gator/internal/cli"
 	"github.com/jakobvanalstine/gator/internal/config"
 	"github.com/jakobvanalstine/gator/internal/database"
+	isignal "github.com/jakobvanalstine/gator/internal/signal"
 )
 
 func main() {
@@ -29,9 +30,13 @@ func main() {
 	defer db.Close()
 	dbQueries := database.New(db)
 
+	ctx, cancel := isignal.NotifyBackground()
+	defer cancel()
+
 	state := cli.NewState()
 	state.CFG = cfg
 	state.DB = dbQueries
+	state.CTX = ctx
 
 	commands := cli.GetCommands()
 

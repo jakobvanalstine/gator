@@ -2,10 +2,13 @@ package cli
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/jakobvanalstine/gator/internal/config"
 	"github.com/jakobvanalstine/gator/internal/database"
+	"github.com/jakobvanalstine/gator/internal/rss"
 )
 
 func NewState() *state {
@@ -48,6 +51,7 @@ func (c *commands) Run(s *state, cmd command) error {
 type state struct {
 	CFG *config.Config
 	DB  *database.Queries
+	CTX context.Context
 }
 
 type command struct {
@@ -65,11 +69,41 @@ func (c *commands) register(name string, f func(*state, command) error) {
 
 func middlewareLoggedIn(handler func(s *state, cmd command, user database.User) error) func(*state, command) error {
 	return func(s *state, cmd command) error {
-		user, err := s.DB.GetUser(context.Background(), s.CFG.CurrentUserName)
+		user, err := s.DB.GetUser(s.CTX, s.CFG.CurrentUserName)
 		if err != nil {
 			return err
 		}
 
 		return handler(s, cmd, user)
 	}
+}
+
+func scrapeFeeds(s *state) error {
+	dbFeed, err := s.DB.GetNextFeedToFetch(s.CTX)
+	if err != nil {
+		return err
+	}
+
+	params := database.MarkFeedFetchedParams{
+		ID: dbFeed.ID,
+		LastFetchedAt: sql.NullTime{
+			Time:  time.Now().UTC(),
+			Valid: true,
+		},
+	}
+
+	if err := s.DB.MarkFeedFetched(s.CTX, params); err != nil {
+		return err
+	}
+
+	rssFeed, err := rss.FetchFeed(s.CTX, dbFeed.Url)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range rssFeed.Channel.Item {
+		fmt.Printf("%+v\n", item)
+	}
+
+	return nil
 }
