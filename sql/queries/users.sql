@@ -7,3 +7,18 @@ VALUES (
     $4
 )
 RETURNING *;
+
+-- name: Reset :exec
+DELETE FROM users;
+
+-- name: GetUsers :many
+SELECT * FROM users
+ORDER BY name;
+
+-- name: GetUser :one
+SELECT * FROM users
+WHERE name = $1 LIMIT 1;
+
+-- name: GetUserForID :one
+Select * FROM users
+WHERE id = $1 LIMIT 1;
