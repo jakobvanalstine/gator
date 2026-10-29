@@ -57,6 +57,16 @@ func (q *Queries) AddFeed(ctx context.Context, arg AddFeedParams) (Feed, error) 
 	return i, err
 }
 
+const deleteFeed = `-- name: DeleteFeed :exec
+DELETE FROM feeds
+WHERE id = $1
+`
+
+func (q *Queries) DeleteFeed(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteFeed, id)
+	return err
+}
+
 const getFeed = `-- name: GetFeed :one
 Select id, created_at, updated_at, name, url, user_id, last_fetched_at FROM feeds
 WHERE id = $1 LIMIT 1

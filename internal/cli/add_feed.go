@@ -29,18 +29,20 @@ func handlerAddFeed(s *state, cmd command, user database.User) error {
 
 	feed, err := s.DB.AddFeed(s.CTX, params)
 	if err != nil {
-		return err
+		if !isUniqueViolation(err) {
+			return err
+		}
 	}
-	fmt.Printf("Created feed %v\n", feed.Name)
-	fmt.Printf("%+v\n", feed)
+	fmt.Println("created feed", feed.Name)
 
 	newCMD := command{
 		name: "follow",
 		args: []string{url},
 	}
 	if err := handlerFollow(s, newCMD, user); err != nil {
-		// TODO(jakob): If this fails, cleanup should remove the new feed.
-		return err
+		if !isUniqueViolation(err) {
+			return err
+		}
 	}
 
 	return nil

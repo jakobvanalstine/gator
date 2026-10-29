@@ -28,8 +28,12 @@ func handlerBrowse(s *state, cmd command, user database.User) error {
 		return err
 	}
 
-	for _, post := range posts {
-		fmt.Printf("\n%+v\n", post)
+	for i, post := range posts {
+		if i != 0 {
+			fmt.Println()
+		}
+		fmt.Println(post.Title)
+		fmt.Println(post.Url)
 	}
 
 	return nil

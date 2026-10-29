@@ -13,7 +13,7 @@ func handlerLogin(s *state, cmd command) error {
 
 	user, err := s.DB.GetUser(s.CTX, username)
 	if err != nil {
-		return errors.New("user does not exist")
+		return err
 	}
 
 	if err := s.CFG.SetUser(user.Name); err != nil {

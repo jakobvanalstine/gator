@@ -19,18 +19,18 @@ func handlerAgg(s *state, cmd command) error {
 	ticker := time.NewTicker(d)
 	defer ticker.Stop()
 
-	fmt.Println("Collecting feeds every", time_between_reqs)
+	fmt.Println("collecting feeds every", time_between_reqs)
 
 	if err := scrapeFeeds(s); err != nil {
 		return err
 	}
 	for {
-		fmt.Println("Sleeping...")
+		fmt.Println("sleeping...")
 		select {
 		case <-s.CTX.Done():
 			return s.CTX.Err()
 		case <-ticker.C:
-			fmt.Println("Collecting feeds...")
+			fmt.Println("collecting feeds...")
 			if err := scrapeFeeds(s); err != nil {
 				return err
 			}

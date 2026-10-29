@@ -9,7 +9,7 @@ func handlerReset(s *state, cmd command) error {
 	if err != nil {
 		return fmt.Errorf("reset failed: %w", err)
 	} else {
-		fmt.Println("Database reset!")
+		fmt.Println("database reset")
 	}
 	return err
 }

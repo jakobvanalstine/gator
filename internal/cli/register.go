@@ -11,27 +11,16 @@ import (
 
 func handlerRegister(s *state, cmd command) error {
 	if cmd.args == nil || len(cmd.args) != 1 {
-		return errors.New("expected one argument: a username")
+		return errors.New("expected a username")
 	}
 	username := cmd.args[0]
 
-	_, err := s.DB.GetUser(s.CTX, username)
-	if err == nil {
-		// OBS: We check err == nil to see if a user by this name already exists.
-		return errors.New("user already exists")
-	}
-
-	createdAt := time.Now()
-	updatedAt := createdAt
+	now := time.Now().UTC()
 	params := database.CreateUserParams{
 		ID:        uuid.New(),
-		CreatedAt: createdAt,
-		UpdatedAt: updatedAt,
+		CreatedAt: now,
+		UpdatedAt: now,
 		Name:      username,
-	}
-
-	if err := s.CFG.SetUser(username); err != nil {
-		return err
 	}
 
 	user, err := s.DB.CreateUser(s.CTX, params)
@@ -39,8 +28,11 @@ func handlerRegister(s *state, cmd command) error {
 		return err
 	}
 
-	fmt.Printf("Created user %v\n", user.Name)
-	fmt.Printf("%+v\n", user)
+	if err := s.CFG.SetUser(username); err != nil {
+		return err
+	}
+
+	fmt.Println("created user", user.Name)
 
 	return err
 }

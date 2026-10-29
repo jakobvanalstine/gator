@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -32,7 +31,6 @@ func GetCommands() *commands {
 	c.register("following", middlewareLoggedIn(handlerFollowing))
 	c.register("login", handlerLogin)
 	c.register("register", handlerRegister)
-	c.register("reset", handlerReset)
 	c.register("unfollow", middlewareLoggedIn(handlerUnfollow))
 	c.register("users", handlerUsers)
 	return c
@@ -84,6 +82,16 @@ func middlewareLoggedIn(handler func(s *state, cmd command, user database.User) 
 	}
 }
 
+func isUniqueViolation(err error) bool {
+	pqErr := new(pq.Error)
+	if errors.As(err, &pqErr) {
+		return pqErr.Code == pqerror.UniqueViolation
+	}
+
+	// Could not have been pqerror.UniqueViolation.
+	return false
+}
+
 func scrapeFeeds(s *state) error {
 	dbFeed, err := s.DB.GetNextFeedToFetch(s.CTX)
 	if err != nil {
@@ -129,17 +137,8 @@ func scrapeFeeds(s *state) error {
 
 		_, err = s.DB.AddPost(s.CTX, params)
 		if err != nil {
-			pqErr := new(pq.Error)
-			if errors.As(err, &pqErr) {
-				switch pqErr.Code {
-				case pqerror.UniqueViolation:
-					// Scraping feeds is bound to turn up posts we already have.
-					// Ignore them instead of crashing the scraper.
-				default:
-					fmt.Fprintln(os.Stderr, "WARNING:", err.Error())
-				}
-			} else {
-				fmt.Fprintln(os.Stderr, "WARNING:", err.Error())
+			if !isUniqueViolation(err) {
+				fmt.Println("warning:", err.Error())
 			}
 		}
 	}

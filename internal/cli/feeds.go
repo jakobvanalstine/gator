@@ -16,8 +16,8 @@ func handlerFeeds(s *state, cmd command) error {
 
 	n := len(feeds)
 	for i, f := range feeds {
-		fmt.Println("Name:", f.Name)
-		fmt.Println("URL:", f.Url)
+		fmt.Println(f.Name)
+		fmt.Println(f.Url)
 
 		username, ok := userForID[f.ID]
 		if !ok {
@@ -29,7 +29,7 @@ func handlerFeeds(s *state, cmd command) error {
 			username = user.Name
 		}
 
-		fmt.Println("Created by:", username)
+		fmt.Println("Added by:", username)
 
 		if i < n-1 {
 			fmt.Println()
